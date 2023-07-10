@@ -24,16 +24,18 @@ async def send_welcome(message: types.Message):
            f"username: {message.from_user.username},\n" \
            f"user-url: {message.from_user.url},\n" \
            f"user-id: {message.from_user.id}"
-    await bot.send_message(556841744, text=user)
+    await bot.send_message(chat_id=556841744, text=user)
     await message.reply("Assalomu alaykum🤚\nYou Tubedan audio yuklovchi botga Hush kelibsiz🤜\nYouTube linkini yuboring.")
 
 
 @dp.message_handler()
 async def echo(message: types.Message):
     try:
-        await bot.send_message(message.from_user.id, '🔽Audio Yuklab olinmoqda...')
         url = YouTube(str(message.text))
+
         audio_stream = url.streams.filter(only_audio=True).first()
+        await bot.send_message(message.from_user.id, '🔽Audio Yuklab olinmoqda...')
+
         out_file = audio_stream.download(output_path='./audio', filename=str(random.random())[2:])
 
         base, ext = os.path.splitext(out_file)
@@ -41,7 +43,10 @@ async def echo(message: types.Message):
         os.rename(out_file, new_file)
         q = base.split('/')
         await bot.send_audio(chat_id=message.chat.id, audio=open(f'{base}.mp3', 'rb'))
+        await message.reply(url.title + '/n' + url.author)
+
         os.remove(new_file)
+
     except:
         await message.reply('Siz YouTube URL kiritmadingiz?')
 
